@@ -1,209 +1,183 @@
-/****************************************************************************************************************/
-/***** Script pour la pop-up de paiement *****/
-/****************************************************************************************************************/
-// Variable pour stocker le nombre de pièces sélectionnées
-var selectedCoinQuantity = 0;
+// js/paiement.js
 
-// Fonction pour mettre à jour le nombre de pièces sélectionnées
-function updateCoinQuantity(quantity) {
-  selectedCoinQuantity = quantity;
-  document.getElementById('coin-quantity').textContent = selectedCoinQuantity;
+const overlay = document.getElementById('overlay');
+const paymentPopup = document.getElementById('payment-popup');
+const closePaymentPopupButton = paymentPopup ? paymentPopup.querySelector('.close-popup-btn') : null; // Giả sử bạn thêm class này vào nút đóng trong HTML
+const paymentConfirmationPopup = document.getElementById('payment-confirmation-popup');
+const closeConfirmationPopupButton = paymentConfirmationPopup ? paymentConfirmationPopup.querySelector('.close-popup-btn') : null;
+const acceptCheckbox = document.getElementById('accept-checkbox');
+const payButton = document.querySelector('.pay-button');
+const rechargeButton = document.getElementById('recharge-button');
+
+/**
+ * Hiển thị popup thông báo (sử dụng lại hàm từ verif.js)
+ * Giả định hàm showPopup(type, message) đã được định nghĩa trong verif.js.
+ */
+// function showPopup(type, message) { ... } 
+
+
+// --- Quản lý trạng thái Popup ---
+
+/**
+ * Đóng tất cả popup và overlay
+ */
+function closeAllPopups() {
+    if (paymentPopup) paymentPopup.style.display = 'none';
+    if (paymentConfirmationPopup) paymentConfirmationPopup.style.display = 'none';
+    if (overlay) overlay.style.display = 'none';
+    document.body.classList.remove('popup-open');
 }
 
+/**
+ * Mở popup thanh toán
+ */
 function openPaymentPopup() {
-  // Récupérer les informations nécessaires
-  var accountName = document.querySelector('.input2').value;
-  var coinQuantity = selectedCoinQuantity;
-  var coinPrice = document.getElementById('total-amount').textContent;
+    const totalAmountElement = document.getElementById('total-amount');
+    const accountNameElement = document.getElementById('account-name');
+    
+    // 1. Kiểm tra trạng thái
+    const totalAmount = parseFloat(totalAmountElement.textContent.replace(',', '.'));
+    const accountName = accountNameElement.textContent.trim();
+    
+    if (totalAmount <= 0 || totalAmountElement.textContent.trim() === '0,00') {
+        // Cần có showPopup từ verif.js để hoạt động
+        if (typeof showPopup === 'function') {
+            showPopup('left', 'Please select a Coin package to recharge.');
+        } else {
+            alert('Please select a Coin package to recharge.');
+        }
+        return;
+    }
 
-  // Mettre à jour les éléments de la pop-up
-  document.getElementById('account-name').textContent = accountName;
-  document.getElementById('coin-quantity').textContent = coinQuantity + ' Pièces';
-  document.getElementById('coin-price').textContent = '€ ' + coinPrice;
-  document.getElementById('coin-price2').textContent = '€ ' + coinPrice;
+    if (accountName === 'Not Verified' || accountName === 'Chưa xác minh') {
+        if (typeof showPopup === 'function') {
+            showPopup('left', 'Please verify your username first.');
+        } else {
+            alert('Please verify your username first.');
+        }
+        return;
+    }
 
-  // Afficher la pop-up
-  document.getElementById('payment-popup').style.display = 'block';
-  document.getElementById('overlay').style.display = 'block'; // Afficher l'overlay
+    // 2. Cập nhật thông tin tóm tắt lần cuối (đảm bảo đồng bộ với montantPerso.js)
+    // Thông tin đã được cập nhật bởi montantPerso.js, chỉ cần hiển thị
+
+    // 3. Hiển thị popup và overlay
+    if (paymentPopup) paymentPopup.style.display = 'block';
+    if (overlay) overlay.style.display = 'block';
+    document.body.classList.add('popup-open');
+    
+    // 4. Đảm bảo nút "Pay Now" bị vô hiệu hóa ban đầu nếu chưa chấp nhận điều khoản
+    if (payButton && acceptCheckbox) {
+        payButton.disabled = !acceptCheckbox.checked;
+    }
 }
 
-// Sélectionner les boutons de sélection de pièces
-var coinButtons = document.querySelectorAll('.grid-item');
+// --- Xử lý thanh toán ---
 
-// Ajouter un gestionnaire d'événements au clic sur les boutons de sélection de pièces
-coinButtons.forEach(function(button) {
-  button.addEventListener('click', function() {
-    var coinQuantity = parseInt(button.querySelector('.coin-number').getAttribute('value'));
-    updateCoinQuantity(coinQuantity);
-  });
-});
+/**
+ * Xử lý quá trình Thanh toán (giả lập)
+ */
+async function Payment() {
+    if (!acceptCheckbox || !payButton) return;
 
-
-// Sélectionner le bouton "Recharger"
-var rechargeButton = document.getElementById('recharge-button');
-
-// Ajouter un gestionnaire d'événements au clic sur le bouton
-rechargeButton.addEventListener('click', openPaymentPopup);
-
-// Créer l'élément pour le conteneur de la croix de fermeture
-var closeContainer = document.createElement('div');
-closeContainer.id = 'close-container';
-
-// Créer l'élément pour la croix de fermeture
-var closePopup = document.createElement('span');
-closePopup.id = 'close-popup';
-closePopup.textContent = '✕';
-closePopup.style.cursor = 'pointer'; // Mettre le curseur en forme de main
-closePopup.style.fontWeight = 'bold'; // Mettre la croix en gras
-closePopup.style.marginLeft = '53rem'; // Augmenter la taille de la croix
-
-// Sélectionner la fenêtre pop-up
-var paymentPopup = document.getElementById('payment-popup');
-
-
-closePopup.addEventListener('click', function () {
-    // Masquer la pop-up
-    paymentPopup.style.display = 'none';
-    document.body.classList.remove('popup-open'); // Supprimer la classe pour rétablir le fond normal
-        // Masquer la pop-up
-        paymentPopup.style.display = 'none';
-    // Masquer l'overlay
-    document.getElementById('overlay').style.display = 'none';
-});
-
-// Ajouter la croix dans le conteneur
-closeContainer.appendChild(closePopup);
-
-// Ajouter le conteneur avec la croix en haut à droite de la fenêtre pop-up
-paymentPopup.insertBefore(closeContainer, paymentPopup.firstChild);
-
-
-// Sélectionner la case à cocher et le bouton "Payer Maintenant"
-var acceptCheckbox = document.getElementById('accept-checkbox');
-var payButton = document.querySelector('.pay-button');
-
-// Désactiver le bouton "Payer Maintenant" au chargement de la page
-payButton.disabled = true;
-
-// Ajouter un gestionnaire d'événements au chargement de la page
-window.addEventListener('load', function() {
-    // Vérifier si la case à cocher est cochée
-    if (acceptCheckbox.checked) {
-        // Activer le bouton "Payer Maintenant"
-        payButton.disabled = false;
+    if (!acceptCheckbox.checked) {
+        alert('Please accept the Coin Policy to proceed.');
+        return;
     }
-});
-
-// Ajouter un gestionnaire d'événements au changement d'état de la case à cocher
-acceptCheckbox.addEventListener('change', function() {
-    // Vérifier si la case à cocher est cochée
-    if (acceptCheckbox.checked) {
-        // Activer le bouton "Payer Maintenant"
-        payButton.disabled = false;
-    } else {
-        // Désactiver le bouton "Payer Maintenant"
-        payButton.disabled = true;
+    
+    // 1. Chuẩn bị nút và UI
+    payButton.disabled = true;
+    // Thêm class loading nếu có
+    if (payButton.classList.contains('buttonwaw')) {
+         // Nếu nút dùng style của buttonwaw (có thể)
+         payButton.style.opacity = '0.7'; 
     }
-});
+    payButton.textContent = 'Processing...';
 
-function Payment() {
-  var payButton = document.querySelector('.pay-button');
-  var popupPayment = document.getElementById('payment-popup');
-  var loadingSpinner = document.querySelector('.loading-spinner');
+    // 2. Giả lập quá trình thanh toán và mở cửa sổ mới
+    
+    // Mở cửa sổ Paypal (Không cần đợi window.open)
+    const paypalWindow = window.open("paypal.html", "_blank", "width=550,height=650");
 
-  // Désactiver le bouton "Payer Maintenant"
-  payButton.disabled = true;
+    // Đợi một khoảng thời gian giả lập xử lý
+    await new Promise(resolve => setTimeout(resolve, 2500)); 
 
-  // Ajouter la classe "loading" au bouton pour afficher le style de chargement
-  payButton.classList.add("loading");
+    // 3. Kết thúc quá trình giả lập
 
-  // Afficher la pop-up de chargement en premier plan
-  popupPayment.style.display = "block";
+    // Đóng cửa sổ thanh toán chính
+    if (paymentPopup) paymentPopup.style.display = 'none';
 
-  setTimeout(function() {
-    // Continuer l'animation de chargement
-    loadingSpinner.style.display = "block";
+    // Hiển thị popup xác nhận
+    showPaymentConfirmationPopup();
+    
+    // Đặt lại nút
+    payButton.disabled = false;
+    payButton.textContent = 'Pay Now'; 
+    if (payButton.style.opacity) payButton.style.opacity = '1';
 
-    // Ouvrir la page "paypal.html" dans une nouvelle fenêtre
-    window.open("paypal.html", "_blank", "width=550,height=650");
-
-    setTimeout(function() {
-      // Réactiver le bouton "Payer Maintenant"
-      payButton.disabled = false;
-
-      // Supprimer la classe "loading" du bouton pour arrêter l'animation de chargement
-      payButton.classList.remove("loading");
-
-      // Cacher la pop-up de chargement
-      popupPayment.style.display = "none";
-
-      // Afficher la pop-up de validation du paiement
-      showPaymentConfirmationPopup();
-
-    }, 2345); // 2354ms = 1,954s (ajuster la durée en millisecondes selon vos besoins)
-
-  }, 3456); // 3,456ms = 3,456s (ajuster la durée en millisecondes selon vos besoins)
+    // Tự động đóng popup xác nhận sau 5 giây
+    setTimeout(() => {
+        closeAllPopups();
+    }, 5000); 
 }
 
-
+/**
+ * Hiển thị popup xác nhận thanh toán
+ */
 function showPaymentConfirmationPopup() {
-  
-  var paymentConfirmationPopup = document.getElementById('payment-confirmation-popup');
-  var closePopup = document.createElement('span');
-  closePopup.id = 'close-popup';
-  closePopup.textContent = '✕';
-  closePopup.style.cursor = 'pointer'; // Mettre le curseur en forme de main
-  closePopup.style.fontWeight = 'bold'; // Mettre la croix en gras
-  closePopup.style.marginLeft = '53rem'; // Augmenter la taille de la croix
-
-  closePopup.addEventListener('click', function () {
-    // Fermer la pop-up de paiement validé
-    paymentConfirmationPopup.style.display = 'none';
-    // Masquer l'overlay
-    document.getElementById('overlay').style.display = 'none';
-  });
-  
-
-  // Ajouter la croix dans la pop-up
-  paymentConfirmationPopup.insertBefore(closePopup, paymentConfirmationPopup.firstChild);
-
-  // Afficher la pop-up de paiement validé
-  paymentConfirmationPopup.style.display = 'block';
-  // Afficher l'overlay
-  document.getElementById('overlay').style.display = 'block';
-
-  // Ajouter un gestionnaire d'événements pour le clic en dehors de la pop-up
-  document.getElementById('overlay').addEventListener('click', function () {
-    // Fermer la pop-up de paiement validé
-    paymentConfirmationPopup.style.display = 'none';
-    // Masquer l'overlay
-    document.getElementById('overlay').style.display = 'none';
-  });
-  
+    if (paymentConfirmationPopup) {
+        paymentConfirmationPopup.style.display = 'block';
+    }
+    if (overlay) {
+        overlay.style.display = 'block';
+    }
 }
 
+// --- Khởi tạo và Gán Sự kiện ---
 
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Gán sự kiện cho nút "Recharger"
+    if (rechargeButton) {
+        rechargeButton.addEventListener('click', openPaymentPopup);
+    }
 
-function closePaymentConfirmationPopup() {
-  var paymentConfirmationPopup = document.getElementById("payment-confirmation-popup");
-  var overlay = document.getElementById("overlay");
+    // 2. Gán sự kiện cho Checkbox
+    if (acceptCheckbox && payButton) {
+        // Thiết lập trạng thái ban đầu
+        payButton.disabled = !acceptCheckbox.checked;
+        
+        acceptCheckbox.addEventListener('change', () => {
+            payButton.disabled = !acceptCheckbox.checked;
+        });
+    }
 
-  // Cacher la pop-up de confirmation du paiement et l'overlay
-  paymentConfirmationPopup.style.display = "none";
-  overlay.style.display = "none";
-}
+    // 3. Gán sự kiện cho nút "Pay Now" (gọi hàm Payment)
+    if (payButton) {
+        payButton.addEventListener('click', Payment);
+    }
+    
+    // 4. Gán sự kiện cho Overlay (Đóng popup khi click ra ngoài)
+    if (overlay) {
+        overlay.addEventListener('click', closeAllPopups);
+    }
+    
+    // 5. Gán sự kiện cho nút đóng (x) trong popup thanh toán
+    // Bạn cần đảm bảo nút này có class '.close-popup-btn' hoặc id phù hợp trong HTML
+    if (closePaymentPopupButton) {
+        closePaymentPopupButton.addEventListener('click', closeAllPopups);
+    }
 
-
-// Ajouter un gestionnaire d'événements pour le clic en dehors de la pop-up
-window.addEventListener('click', function(event) {
-  // Récupérer l'élément cliqué
-  var target = event.target;
-
-  // Vérifier si l'élément cliqué est en dehors de la pop-up et du bouton Recharger
-  if (target !== paymentPopup && target !== rechargeButton && !paymentPopup.contains(target)) {
-    // Masquer la pop-up
-    paymentPopup.style.display = 'none';
-    // Masquer l'overlay
-    document.getElementById('overlay').style.display = 'none';
-  }
+    // 6. Gán sự kiện cho nút đóng (x) trong popup xác nhận
+    if (closeConfirmationPopupButton) {
+        closeConfirmationPopupButton.addEventListener('click', closeAllPopups);
+    }
+    
+    // **LƯU Ý QUAN TRỌNG:** // Các phần code gốc liên quan đến việc TẠO và CHÈN nút đóng (✕) vào popup
+    // (như closePopup.style.marginLeft = '53rem';) đã được loại bỏ 
+    // vì chúng nên được xử lý bằng HTML và CSS để đảm bảo tính responsive và clean code.
+    // Vui lòng kiểm tra lại HTML của bạn và thêm nút đóng với class '.close-popup-btn' (hoặc tương tự).
 });
+
+// Loại bỏ các hàm không cần thiết/dư thừa: updateCoinQuantity, showPaymentConfirmationPopup (đã tích hợp logic)
+// showPaymentConfirmationPopup đã được giữ lại nhưng logic được đơn giản hóa.
+// Loại bỏ logic tạo và chèn closePopup (✕) vào DOM.
