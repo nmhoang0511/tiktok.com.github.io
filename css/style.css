@@ -969,29 +969,75 @@ header > *:not(:first-child) {
         margin-right: 0;
     }
 
-    /* --- 5. Total Price và Button Recharge (Cố định ở dưới) --- */
-    #total-price {
-        position: fixed; /* Cố định ở cuối màn hình */
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background-color: white; 
-        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-        padding: 15px 20px;
-        z-index: 1000;
-        text-align: right;
-    }
+/* --- 5. Total Price và Button Recharge (Cố định ở dưới) --- */
+#total-price {
+    position: fixed; /* Cố định ở cuối màn hình */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: white; 
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+    z-index: 1000;
     
-    .recharger {
-        /* Nút Recharge sẽ được ẩn nếu #total-price cố định ở dưới */
-        display: none; 
-    }
+    /* [QUAN TRỌNG]: Sử dụng Flexbox để căn chỉnh Tổng tiền và Nút */
+    display: flex;
+    justify-content: space-between; /* Đẩy nội dung ra hai bên */
+    align-items: center;
+}
 
-    .payment-methods {
-        text-align: center;
-        margin-top: 50px; /* Thêm khoảng trống phía trên cho thanh cố định */
-    }
+/* Phần tử chứa tổng tiền (Total Payement) cần chiếm không gian bên trái */
+.total-payement {
+    /* Điều chỉnh margin để căn giữa theo khu vực nội dung */
+    margin-left: 0; 
+    padding-right: 5px;
+    font-size: 18px;
+    
+    /* Ngăn không cho kéo dài */
+    flex-grow: 0; 
+    flex-shrink: 0;
+}
 
+.total-payement span {
+    font-weight: bold;
+}
+
+/* [QUAN TRỌNG]: SỬA LỖI ẨN NÚT */
+/* Nếu .recharger là container của nút (giả sử nút là #recharge-button) */
+.recharger {
+    /* Cho phép nó hiển thị */
+    display: block; 
+    /* Đảm bảo nó không bị kéo dài */
+    flex-grow: 0; 
+}
+
+/* Thêm style cơ bản cho nút Recharge */
+#recharge-button { /* Giả sử nút có ID này */
+    background-color: #c10f2e;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    min-width: 120px;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+}
+
+
+.payment-methods {
+    text-align: center;
+    /* [QUAN TRỌNG]: Thêm padding-bottom cho BODY */
+    /* Nếu không, thanh fixed sẽ che mất nội dung cuối trang */
+    margin-top: 50px; 
+}
+
+/* Cần thêm CSS này vào một nơi nào đó khác (ví dụ: thẻ body hoặc main container)
+   để thanh fixed không che mất nội dung cuối cùng của trang. */
+body {
+    padding-bottom: 80px; /* Chiều cao của #total-price cố định (khoảng 60px + padding) */
+}
     /* --- 6. Popups (Thanh toán) --- */
     .popup-paiement {
         width: 95%; /* Chiếm phần lớn màn hình */
