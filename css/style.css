@@ -1,3 +1,19 @@
+/* ĐẦU FILE CSS */
+
+* {
+    /* Đảm bảo padding và border được tính VÀO TRONG chiều rộng và chiều cao của phần tử */
+    box-sizing: border-box; 
+    /* Có thể thêm: */
+    /* margin: 0; */
+    /* padding: 0; */
+}
+
+body {
+    /* Ngăn chặn cuộn ngang (giải pháp tạm thời) */
+    overflow-x: hidden; 
+}
+
+/* Các quy tắc CSS chung khác... */
 /*@font-face {
   font-family: "TokTok";
   src: url("../font/toktok.woff") format("woff");
