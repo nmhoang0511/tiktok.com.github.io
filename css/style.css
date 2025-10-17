@@ -1049,3 +1049,37 @@ header > *:not(:first-child) {
         grid-template-columns: repeat(2, 1fr); /* Đảm bảo chỉ 2 cột trên màn hình rất nhỏ */
     }
 }
+/* CUỐI FILE CSS */
+
+/* --- PHẦN 1: MEDIA QUERY CHO ĐIỆN THOẠI (Responsive) --- */
+@media only screen and (max-width: 600px) {
+    
+    /* Chỉnh sửa container chứa các gói Coin */
+    .grid-container {
+        /* Chuyển từ nhiều cột sang 1 hoặc 2 cột để vừa màn hình */
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 10px; 
+        padding: 0 5px; 
+    }
+
+    /* Đảm bảo các hộp coin không có chiều rộng cố định */
+    .grid-item {
+        max-width: 100%;
+        /* Tăng kích thước chữ nếu cần cho dễ đọc */
+        font-size: 14px; 
+    }
+
+    /* Chỉnh sửa giao diện của popup để vừa màn hình */
+    #payment-popup, 
+    #payment-confirmation-popup {
+        width: 95%; /* Chiếm gần hết chiều rộng màn hình */
+        /* Căn giữa */
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    /* Giảm kích thước/margin của các phần tử khác nếu cần (ví dụ: nút xác minh) */
+    .verification-section {
+        flex-direction: column; /* Xếp các phần tử dọc */
+    }
+}
