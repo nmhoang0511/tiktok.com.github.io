@@ -333,63 +333,81 @@ h2 {
 }
 
 /************* Total Price *************************/
-.euro {
-  font-weight: bold;
-}
-.signeeuro {
-  font-weight: bold;
+
+/* Selector #total-price là container cha. Cần đảm bảo nó không quá rộng và các phần tử con không bị kéo dài. */
+#total-price {
+    /* [ĐÃ SỬA]: Xóa max-width cố định. Để nó chiếm 100% không gian container cha (ví dụ: .main-content) */
+    /* max-width: 960px; */ 
+    width: 100%; /* Đảm bảo chiếm toàn bộ không gian ngang cho layout */
+    margin: 20px auto;
+    
+    /* [ĐÃ SỬA]: Sử dụng Flexbox để căn chỉnh nhãn "Total" và giá trị */
+    display: flex; 
+    justify-content: flex-end; /* Đẩy nội dung sang phải */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    
+    padding-right: 20px;
 }
 
+/* Selector .total-payement chứa nhãn "Total" (ví dụ: Total Payement) và giá trị. */
 .total-payement {
-  /* Điều chỉnh margin để căn giữa theo khu vực nội dung */
-  margin-left: 0; 
-  padding-right: 5px;
-  font-size: 18px;
+    /* Đảm bảo phần này không bị giãn ra vô lý */
+    flex-grow: 0; /* NGĂN nó chiếm hết không gian còn lại */
+    flex-shrink: 0; /* NGĂN nó bị co lại */
+    
+    /* [ĐÃ SỬA]: Đặt một chiều rộng tối thiểu để tổng tiền không bị dồn lại quá nhỏ */
+    min-width: 150px; 
+    
+    padding-right: 5px;
+    font-size: 18px;
+    /* Loại bỏ margin-left: 0; không cần thiết */
 }
 
 .total-payement span {
-  font-weight: bold;
+    font-weight: bold;
+    /* Thêm thuộc tính này nếu bạn muốn tách giá trị và nhãn */
+    /* display: block; */
 }
 
-#total-price {
-    /* Đảm bảo căn giữa trên desktop */
-    max-width: 960px;
-    margin: 20px auto;
-    text-align: right;
-    padding-right: 20px; /* Thêm padding cho đẹp */
+
+.euro {
+    font-weight: bold;
+}
+.signeeuro {
+    font-weight: bold;
 }
 
+
+/* --- Các phần không liên quan đến lỗi Tổng tiền (giữ nguyên) --- */
 
 .custom-button {
-  display: inline-block;
-  background-color: #c10f2e;
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 20px;
-  font-family: Arial, sans-serif;
-  text-decoration: none;
-  transition: background-color 0.3s ease;
-  margin-right: 10px;
-  cursor: pointer;
+    display: inline-block;
+    background-color: #c10f2e;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    margin-right: 10px;
+    cursor: pointer;
 }
 
 .custom-button:hover {
-  background-color: #ff3c6c;
+    background-color: #ff3c6c;
 }
 
 .custom-input {
-  border: none;
-  background-color: transparent;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  font-size: 16px;
-  padding: 5px;
-  margin-right: 10px;
-  width: 150px;
-  letter-spacing: 0.093px;
+    border: none;
+    background-color: transparent;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    padding: 5px;
+    margin-right: 10px;
+    width: 150px;
+    letter-spacing: 0.093px;
 }
-
-/************ Recharger************/
 
 .recharger {
   /* Điều chỉnh margin để căn giữa theo khu vực nội dung */
